@@ -17,7 +17,7 @@
 using namespace glm;
 using namespace std;
 
-const double eps = 1e-9;
+const float eps = 1e-6;
 
 rayTracer::rayTracer(int sx, int fx, int sy, int fy, Camera *_cam, Scene *_scene):
     tl(std::make_pair(sx, sy)), br(std::make_pair(fx, fy)), res(fx-sx, fy-sy, QImage::Format_RGB32),
@@ -35,58 +35,63 @@ QImage raytrace(Camera &cam, Scene &scene, int sx, int sy, int fx, int fy, QImag
     {
         for(int j = sy; j < fy; ++j)
         {
-            Ray ray = rayThruPixel(cam, i, j);
+            if(i == 100 && j == 0)
+                cerr << "lol" << endl;
+            Ray ray = Ray::rayThruPixel(cam, i, j);
             Intersection hit = intersect(ray, scene, NULL);
             if(!hit.getObject()) res.setPixel(i - sx, j - sy, 0);
             else
             {
-                dvec3 color = findColor(hit, scene, scene.getDepth());
+                vec3 color = findColor(hit, scene, scene.getDepth());
                 res.setPixel(i - sx, j - sy, (int(color.r * 255)<<16) + (int(color.g * 255)<<8) + int(color.b * 255));
             }
             (*progress)++;
-            //cerr << double(i*h + j) / (w*h) * 100 << "%" << endl;
+            //cerr << float(i*h + j) / (w*h) * 100 << "%" << endl;
         }
     }
     return res;
 }
 
-dvec3 findColor(Intersection hit, Scene scene, int depth)
+vec3 findColor(Intersection hit, Scene scene, int depth)
 {
-    if(!depth) return dvec3();
-    dvec3 color(0, 0, 0);
-    dvec3 P = hit.getRay().trace(hit.getRayPos());
-    vector<dvec3> attenuation(scene.getLightsList().size());
-    dvec3 normal = /*scene.getLightsList()[i]->type == Light::point ? -hit.getNormal() : */hit.getNormal();
+    if(!depth) return vec3();
+    vec3 color(0, 0, 0);
+    vec3 P = hit.getRay().trace(hit.getRayPos());
+    vector<vec3> attenuation(scene.getLightsList().size());
+    vec3 normal = hit.getNormal();
     for(int i = 0, ___i = scene.getLightsList().size(); i != ___i; ++i)
     {
-        bool shaded = false;
-        for(int j = 0; j < scene.getObjectsList().size() && !shaded; ++j)
+        //check is point in shadow
+        vec3 dir = (scene.getLightsList()[i]->type == Light::point ? normalize(scene.getLightsList()[i]->pos - P) :
+                                                                     normalize(scene.getLightsList()[i]->pos));
+        bool shadowed = false;
+        for(int j = 0, jend = scene.getObjectsList().size(); j < jend && !shadowed; ++j)
         {
-            dvec3 dir = scene.getLightsList()[i]->type == Light::point ? normalize(scene.getLightsList()[i]->pos - P) :
-                                                                         normalize(scene.getLightsList()[i]->pos);
-            Intersection t = scene.getObjectsList()[j]->intersect(Ray(P, dir));
-            dvec3 rayP = t.getRay().trace(t.getRayPos());
-            if(t.getObject() &&
+            Ray r(P, dir);
+            Intersection t = scene.getObjectsList()[j]->intersect(r);
+            vec3 rayP = t.getRay().trace(t.getRayPos());
+            shadowed = t.getObject() &&
+                    t.getObject() != hit.getObject() &&
                     length(rayP - P) > eps &&
-                    (length(normalize(scene.getLightsList()[i]->pos - rayP) - normalize(t.getRay().getDirection())) < eps || scene.getLightsList()[i]->type == Light::directional))
-                shaded = true;
+                    (scene.getLightsList()[i]->type == Light::directional || length(rayP - P) < length(scene.getLightsList()[i]->pos - P));
         }
-        if(shaded)continue;
-        double d = length(scene.getLightsList()[i]->pos - P);
+        if(shadowed)continue;
+
+        float d = length(scene.getLightsList()[i]->pos - P);
         if(scene.getLightsList()[i]->type == Light::point)
-            attenuation[i] = (scene.getLightsList()[i]->color)/(dot(scene.getAttenuation(), dvec3(1, d, d*d)));
+            attenuation[i] = (scene.getLightsList()[i]->color)/(dot(scene.getAttenuation(), vec3(1, d, d*d)));
         else
             attenuation[i] = scene.getLightsList()[i]->color;
 
-        dvec3 direction = scene.getLightsList()[i]->type == Light::point ?      //diffuse
-                    normalize(scene.getLightsList()[i]->pos - P) :              //diffuse
-                    normalize(scene.getLightsList()[i]->pos);                   //diffuse
+        vec3 direction = scene.getLightsList()[i]->type == Light::point ?      //diffuse
+                   normalize(scene.getLightsList()[i]->pos - P) :              //diffuse
+                   normalize(scene.getLightsList()[i]->pos);                   //diffuse
         color += attenuation[i] * hit.getObject()->getMat().diffuse *           //diffuse
-                std::max(0., dot(direction, normal));                           //diffuse
+                std::max(0.f, dot(direction, normal));                           //diffuse
 
-        dvec3 halfdvec = normalize(direction - hit.getRay().getDirection());    //specular
+        vec3 halfvec = normalize(direction - hit.getRay().getDirection());    //specular
         color += attenuation[i]*hit.getObject()->getMat().specular *            //specular
-                pow(std::max(0., dot(halfdvec, normal)),                        //specular
+                pow(std::max(0.f, dot(halfvec, normal)),                        //specular
                     hit.getObject()->getMat().shininess);                       //specular
     }
     color += hit.getObject()->getMat().ambient;                                 //ambient

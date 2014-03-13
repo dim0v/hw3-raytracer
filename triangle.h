@@ -9,12 +9,12 @@ class Intersection;
 
 class Triangle : public Object
 {
-    glm::dvec3 A, B, C;
-    glm::dvec3 nA, nB, nC;
+    glm::vec3 A, B, C;
+    glm::vec3 nA, nB, nC;
 public:
-    Triangle(glm::dvec3 A, glm::dvec3 B, glm::dvec3 C, glm::dvec3 nA = glm::dvec3(),
-             glm::dvec3 nB = glm::dvec3(), glm::dvec3 nC = glm::dvec3());
-    virtual Intersection intersect(Ray ray);
+    Triangle(glm::vec3 A, glm::vec3 B, glm::vec3 C, glm::vec3 nA = glm::vec3(),
+             glm::vec3 nB = glm::vec3(), glm::vec3 nC = glm::vec3());
+    virtual Intersection intersect(const Ray &ray);
 };
 
 #endif // TRIANGLE_H

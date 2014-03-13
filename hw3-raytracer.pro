@@ -39,3 +39,5 @@ HEADERS += \
     sphere.h \
     triangle.h \
     raytracer.h
+
+CONFIG += c++11

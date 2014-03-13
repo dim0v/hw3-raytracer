@@ -19,7 +19,7 @@ class Scene
     std::string output;
     int width, height;
     int depth;
-    glm::dvec3 attenuation;
+    glm::vec3 attenuation;
 public:
     Scene();
     const std::vector<Object*>& getObjectsList() const {return objects;}
@@ -28,10 +28,10 @@ public:
     int getWidth() const {return width;}
     int getHeight() const {return height;}
     int getDepth() const {return depth;}
-    const glm::dvec3 getAttenuation() const {return attenuation;}
+    const glm::vec3 getAttenuation() const {return attenuation;}
     friend std::pair<Camera *, Scene *> readfile(const char* filename);
 };
 
-Intersection intersect(const Ray ray, const Scene& scene, const Object *obj);
+Intersection intersect(Ray& ray, const Scene& scene, const Object *obj);
 
 #endif // SCENE_H

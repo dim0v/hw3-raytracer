@@ -7,8 +7,8 @@ class Light
 {
 public:
     enum Light_type{point, directional};
-    glm::dvec3 pos;
-    glm::dvec3 color;
+    glm::vec3 pos;
+    glm::vec3 color;
     Light_type type;
     Light();
 };

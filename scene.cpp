@@ -7,11 +7,11 @@ using namespace std;
 using namespace glm;
 
 Scene::Scene():
-    attenuation(dvec3(1, 0, 0)), depth(5)
+    attenuation(vec3(1, 0, 0)), depth(5)
 {
 }
 
-Intersection intersect(const Ray ray, const Scene& scene, const Object* obj)
+Intersection intersect(Ray &ray, const Scene& scene, const Object* obj)
 {
     Intersection res;
     vector<Object*> vObj = scene.getObjectsList();

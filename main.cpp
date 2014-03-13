@@ -3,6 +3,10 @@
 #include <QImage>
 #include <utility>
 #include <cmath>
+
+#include <chrono>
+#include <thread>
+
 #include "readfile.h"
 #include "raytracer.h"
 #include "camera.h"
@@ -13,49 +17,48 @@ int main(int argc, char *argv[])
 {
     if(argc < 2)
     {
-        cout << "Usage :" << endl << argv[0] << " sceneFile.txt" << endl;
+        cout << "Usage :" << endl << argv[0] << " <sceneFile.txt> [<number of threads>]" << endl;
         return 0;
     }
     pair<Camera*, Scene*> s = readfile(argv[1]);
-    QImage res(s.first->getWidth(), s.first->getHeight(), QImage::Format_RGB32);
-    rayTracer tl(0, s.first->getWidth()/2, 0, s.first->getHeight()/2, s.first, s.second);
-    rayTracer tr(s.first->getWidth()/2, s.first->getWidth(), 0, s.first->getHeight()/2, s.first, s.second);
-    rayTracer bl(0, s.first->getWidth()/2, s.first->getHeight()/2, s.first->getHeight(), s.first, s.second);
-    rayTracer br(s.first->getWidth()/2, s.first->getWidth(), s.first->getHeight()/2, s.first->getHeight(), s.first, s.second);
-    tl.start();
-    tr.start();
-    bl.start();
-    br.start();
+
+    int nThreads = argc > 2 ? atoi(argv[2]) : QThread::idealThreadCount();
+
+    QVector<rayTracer *> threads;
+    threads.resize(nThreads);
+
+    int thread_subRenderHeight = s.first->getHeight() / nThreads;
+
+    for(int i = 0; i < nThreads; ++i)
+        threads[i] = new rayTracer(0,                          s.first->getWidth(),
+                                   i * thread_subRenderHeight, (i + 1) * thread_subRenderHeight,
+                                   s.first, s.second);
+    for(int i = 0; i < nThreads; ++i)
+        threads[i]->start();
+
     bool t = false;
     while(!t)
     {
-        cerr << 100 * double(tl.getProgress() + tr.getProgress() + bl.getProgress() + br.getProgress()) / (s.first->getWidth() * s.first->getHeight());
-        cerr << "%" << endl;
-        sleep(3);
-        t = tl.isFinished() && tr.isFinished() && bl.isFinished() && br.isFinished();
+        int progress = 0;
+        for(int i = 0; i < nThreads; ++i)
+            progress += threads[i]->getProgress();
+        cerr << float(progress) / s.first->getWidth() / s.first->getHeight() * 100 << "%" << endl;
+        this_thread::sleep_for( chrono::seconds(3) );
+        t = true;
+        for(int i = 0; i < nThreads && t; ++i)
+            t = threads[i]->isFinished();
     }
-    tl.wait();
-    tr.wait();
-    bl.wait();
-    br.wait();
+    for(int i = 0; i < nThreads; ++i)
+        threads[i]->wait();
+
+
+    QImage res(s.first->getWidth(), s.first->getHeight(), QImage::Format_RGB32);
+
     for(int i = 0; i < s.first->getWidth(); ++i)
     {
         for(int j = 0; j < s.first->getHeight(); ++j)
         {
-            if(i < s.first->getWidth()/2)
-            {
-                if(j < s.first->getHeight()/2)
-                    res.setPixel(i, j, tl.getImg().pixel(i, j));
-                else
-                    res.setPixel(i, j, bl.getImg().pixel(i, j - s.first->getHeight()/2));
-            }
-            else
-            {
-                if(j < s.first->getHeight()/2)
-                    res.setPixel(i, j, tr.getImg().pixel(i - s.first->getWidth()/2, j));
-                else
-                    res.setPixel(i, j, br.getImg().pixel(i - s.first->getWidth()/2, j - s.first->getHeight()/2));
-            }
+            res.setPixel(i, j, threads[j / thread_subRenderHeight]->getImg().pixel(i, j % thread_subRenderHeight));
         }
     }
     res.save(s.second->getFilename().c_str());

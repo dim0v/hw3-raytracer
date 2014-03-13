@@ -7,14 +7,16 @@ class Camera;
 
 class Ray
 {
-    glm::dvec3 start;
-    glm::dvec3 direction;
+    glm::vec3 start;
+    glm::vec3 direction;
 public:
-    Ray(glm::dvec3 _start, glm::dvec3 _dir);
-    friend Ray rayThruPixel(Camera cam, int x, int y);
-    glm::dvec3 getStart() const {return start;}
-    glm::dvec3 getDirection() const {return direction;}
-    glm::dvec3 trace(double t) const {return start + direction * t;}
+    Ray(glm::vec3 _start, glm::vec3 _dir);
+    static Ray rayThruPixel(Camera cam, int x, int y);
+
+    void applyTransform(const glm::mat4 &transform);
+    glm::vec3 getStart() const {return start;}
+    glm::vec3 getDirection() const {return direction;}
+    glm::vec3 trace(float t) const {return start + direction * t;}
     bool operator== (const Ray &rhs) const {return start == rhs.start && direction == rhs.direction;}
 };
 

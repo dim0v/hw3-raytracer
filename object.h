@@ -9,22 +9,24 @@ class Ray;
 class Object
 {
 protected:
-    glm::dmat4 transform;
+    glm::mat4 transform;
+    glm::mat4 inverseTransform;
 public:
     struct Material
     {
-        glm::dvec3 specular;
-        glm::dvec3 emission;
-        glm::dvec3 diffuse;
-        glm::dvec3 ambient;
-        double shininess;
+        glm::vec3 specular;
+        glm::vec3 emission;
+        glm::vec3 diffuse;
+        glm::vec3 ambient;
+        float shininess;
     };
     Object();
-    virtual Intersection intersect(Ray ray) = 0;
+    virtual Intersection intersect(const Ray& ray) = 0;
     const Material getMat() const {return mat;}
     void setMat(Material _mat) {mat = _mat;}
-    const glm::dmat4 getTransform() const {return transform;}
-    void setTransform(glm::dmat4 _transform) {transform = _transform;}
+    const glm::mat4 getTransform() const {return transform;}
+    const glm::mat4 getInverseTransform() const {return inverseTransform;}
+    void setTransform(glm::mat4 _transform) {transform = _transform; inverseTransform = glm::inverse(transform);}
 protected:
     Material mat;
 };

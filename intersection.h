@@ -10,16 +10,16 @@ class Ray;
 
 class Intersection
 {
-    glm::dvec3 normal;
+    glm::vec3 normal;
     Ray ray;
-    double t;
+    float t;
     Object *object;
 public:
-    Intersection(glm::dvec3 _normal = glm::dvec3(), Ray _ray = Ray(glm::dvec3(), glm::dvec3()),
-                 double _t = std::numeric_limits<double>::infinity(), Object *obj = NULL);
-    glm::dvec3 getNormal() const {return normal;}
-    Ray getRay() const {return ray;}
-    double getRayPos() const {return t;}
-    Object* getObject() const {return object;}
+    Intersection(glm::vec3 _normal = glm::vec3(), Ray _ray = Ray(glm::vec3(), glm::vec3()),
+                 float _t = std::numeric_limits<float>::infinity(), Object *obj = NULL);
+    const glm::vec3& getNormal() const {return normal;}
+    const Ray& getRay() const {return ray;}
+    const float& getRayPos() const {return t;}
+    const Object* getObject() const {return object;}
 };
 #endif // INTERSECTION_H

@@ -10,14 +10,14 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-// glm provides dvector, dmatrix classes like glsl
+// glm provides vector, matrix classes like glsl
 // Typedefs to make code more readable 
 
-typedef glm::dmat3 dmat3 ;
-typedef glm::dmat4 dmat4 ; 
-typedef glm::dvec3 dvec3 ; 
-typedef glm::dvec4 dvec4 ; 
-const double pi = 3.14159265 ; // For portability across platforms
+typedef glm::mat3 mat3 ;
+typedef glm::mat4 mat4 ;
+typedef glm::vec3 vec3 ;
+typedef glm::vec4 vec4 ;
+const float pi = 3.14159265 ; // For portability across platforms
 
 
 class Transform  
@@ -25,14 +25,14 @@ class Transform
 public:
 	Transform();
 	virtual ~Transform();
-	static void left(double degrees, dvec3& eye, dvec3& up);
-	static void up(double degrees, dvec3& eye, dvec3& up);
-	static dmat4 lookAt(const dvec3& eye, const dvec3 &center, const dvec3& up);
-	static dmat4 perspective(double fovy, double aspect, double zNear, double zFar);
-        static dmat3 rotate(const double degrees, const dvec3& axis) ;
-        static dmat4 scale(const double &sx, const double &sy, const double &sz) ; 
-        static dmat4 translate(const double &tx, const double &ty, const double &tz);
-        static dvec3 updvector(const dvec3 &up, const dvec3 &zdvec) ; 
+    static void left(float degrees, vec3& eye, vec3& up);
+    static void up(float degrees, vec3& eye, vec3& up);
+    static mat4 lookAt(const vec3& eye, const vec3 &center, const vec3& up);
+    static mat4 perspective(float fovy, float aspect, float zNear, float zFar);
+        static mat3 rotate(const float degrees, const vec3& axis) ;
+        static mat4 scale(const float &sx, const float &sy, const float &sz) ;
+        static mat4 translate(const float &tx, const float &ty, const float &tz);
+        static vec3 upvector(const vec3 &up, const vec3 &zvec) ;
 };
 
 #endif

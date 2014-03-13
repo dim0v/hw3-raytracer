@@ -6,11 +6,11 @@
 
 class Sphere : public Object
 {
-    glm::dvec3 center;
-    double radius;
+    glm::vec3 center;
+    float radius;
 public:
-    Sphere(glm::dvec3 _center, double _radius);
-    virtual Intersection intersect(Ray ray);
+    Sphere(glm::vec3 _center, float _radius);
+    virtual Intersection intersect(const Ray& ray);
 };
 
 #endif // SPHERE_H

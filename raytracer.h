@@ -14,7 +14,7 @@ class Camera;
 class Scene;
 
 QImage raytrace(Camera &cam, Scene &scene, int sx, int sy, int fx, int fy, QImage &res, int *progress);
-glm::dvec3 findColor(Intersection hit, Scene scene, int depth);
+glm::vec3 findColor(Intersection hit, Scene scene, int depth);
 
 class rayTracer : public QThread
 {

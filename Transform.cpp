@@ -7,17 +7,17 @@
 #include "Transform.h"
 
 // Helper rotation function.  Please implement this.  
-dmat3 Transform::rotate(const double degrees, const dvec3& axis)
+mat3 Transform::rotate(const float degrees, const vec3& axis)
 {
     // YOUR CODE FOR HW2 HERE
-      double radians = degrees * pi / 180;
-      dvec3 _axis = glm::normalize(axis);
-      dmat3 res = dmat3(cos(radians)) + (1 - cos(radians))*dmat3(_axis[0]*_axis, _axis[1]*_axis, _axis[2]*_axis) + sin(radians)*dmat3(0, -_axis[2], _axis[1], _axis[2], 0, -_axis[0], -_axis[1], _axis[0], 0);
+      float radians = degrees * pi / 180;
+      vec3 _axis = glm::normalize(axis);
+      mat3 res = mat3(cos(radians)) + (1 - cos(radians))*mat3(_axis[0]*_axis, _axis[1]*_axis, _axis[2]*_axis) + sin(radians)*mat3(0, -_axis[2], _axis[1], _axis[2], 0, -_axis[0], -_axis[1], _axis[0], 0);
     // Please implement this.  Likely the same as in HW 1.  
       return res;
 }
 
-void Transform::left(double degrees, dvec3& eye, dvec3& up) 
+void Transform::left(float degrees, vec3& eye, vec3& up)
 {
     // YOUR CODE FOR HW2 HERE
     eye = rotate(-degrees, up)*eye;
@@ -25,36 +25,36 @@ void Transform::left(double degrees, dvec3& eye, dvec3& up)
     // Likely the same as in HW 1.  
 }
 
-void Transform::up(double degrees, dvec3& eye, dvec3& up) 
+void Transform::up(float degrees, vec3& eye, vec3& up)
 {
     // YOUR CODE FOR HW2 HERE 
-    dvec3 axis = glm::normalize(glm::cross(up, eye));
+    vec3 axis = glm::normalize(glm::cross(up, eye));
     eye = rotate(degrees, axis)*eye;
     up = rotate(degrees, axis)*up;
     up = glm::normalize(up);
     // Likely the same as in HW 1.  
 }
 
-dmat4 Transform::lookAt(const dvec3 &eye, const dvec3 &center, const dvec3 &up)
+mat4 Transform::lookAt(const vec3 &eye, const vec3 &center, const vec3 &up)
 {
     // YOUR CODE FOR HW2 HERE
-    dvec3 w = glm::normalize(eye);
-    dvec3 u = glm::normalize(glm::cross(up, w));
-    dvec3 v = glm::cross(w, u);
-    dmat4 rotate(dvec4(u, 0), dvec4(v, 0), dvec4(w, 0), dvec4(0, 0, 0, 1));
-    dmat4 translate(1, 0, 0, -eye[0], 0, 1, 0, -eye[1], 0, 0, 1, -eye[2], 0, 0, 0, 1);
+    vec3 w = glm::normalize(eye);
+    vec3 u = glm::normalize(glm::cross(up, w));
+    vec3 v = glm::cross(w, u);
+    mat4 rotate(vec4(u, 0), vec4(v, 0), vec4(w, 0), vec4(0, 0, 0, 1));
+    mat4 translate(1, 0, 0, -eye[0], 0, 1, 0, -eye[1], 0, 0, 1, -eye[2], 0, 0, 0, 1);
     // Likely the same as in HW 1.  
     return translate * rotate;
 }
 
-dmat4 Transform::perspective(double fovy, double aspect, double zNear, double zFar)
+mat4 Transform::perspective(float fovy, float aspect, float zNear, float zFar)
 {
-    dmat4 ret;
+    mat4 ret;
     // YOUR CODE FOR HW2 HERE
     // New, to implement the perspective transform as well.  
-    double theta = fovy / 2 * pi / 180;
-    double d = 1 / tan(theta);
-    double A = (zFar + zNear) / (zNear - zFar), B = 2*zFar*zNear / (zNear - zFar);
+    float theta = fovy / 2 * pi / 180;
+    float d = 1 / tan(theta);
+    float A = (zFar + zNear) / (zNear - zFar), B = 2*zFar*zNear / (zNear - zFar);
     ret[0][0] /= aspect;
     ret[3][3] = 0;
     ret[3][2] = -1/d;
@@ -64,20 +64,20 @@ dmat4 Transform::perspective(double fovy, double aspect, double zNear, double zF
     return ret;
 }
 
-dmat4 Transform::scale(const double &sx, const double &sy, const double &sz)
+mat4 Transform::scale(const float &sx, const float &sy, const float &sz)
 {
-    return glm::scale(dmat4(), dvec3(sx,sy,sz));
+    return glm::scale(mat4(), vec3(sx,sy,sz));
     // YOUR CODE FOR HW2 HERE
     // Implement scaling 
-    return dmat4(dmat3(sx, 0, 0, 0, sy, 0, 0, 0, sz));
+    return mat4(mat3(sx, 0, 0, 0, sy, 0, 0, 0, sz));
 }
 
-dmat4 Transform::translate(const double &tx, const double &ty, const double &tz)
+mat4 Transform::translate(const float &tx, const float &ty, const float &tz)
 {
-    return glm::translate(dmat4(), dvec3(tx, ty, tz));
+    return glm::translate(mat4(), vec3(tx, ty, tz));
     // YOUR CODE FOR HW2 HERE
     // Implement translation
-    dmat4 res;
+    mat4 res;
     res[3][0] = tx;
     res[3][1] = ty;
     res[3][2] = tz;
@@ -90,11 +90,11 @@ dmat4 Transform::translate(const double &tx, const double &ty, const double &tz)
 // This function is provided as a helper, in case you want to use it. 
 // Using this function (in readfile.cpp or display.cpp) is optional.  
 
-dvec3 Transform::updvector(const dvec3 &up, const dvec3 & zdvec) 
+vec3 Transform::upvector(const vec3 &up, const vec3 & zvec)
 {
-    dvec3 x = glm::cross(up,zdvec); 
-    dvec3 y = glm::cross(zdvec,x); 
-    dvec3 ret = glm::normalize(y); 
+    vec3 x = glm::cross(up,zvec);
+    vec3 y = glm::cross(zvec,x);
+    vec3 ret = glm::normalize(y);
     return ret; 
 }
 
