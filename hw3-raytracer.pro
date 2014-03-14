@@ -22,10 +22,10 @@ SOURCES += main.cpp \
     ray.cpp \
     intersection.cpp \
     light.cpp \
-    object.cpp \
     sphere.cpp \
     triangle.cpp \
-    raytracer.cpp
+    raytracer.cpp \
+    visibleobject.cpp
 
 HEADERS += \
     Transform.h \
@@ -38,6 +38,7 @@ HEADERS += \
     object.h \
     sphere.h \
     triangle.h \
-    raytracer.h
+    raytracer.h \
+    visibleobject.h
 
 CONFIG += c++11

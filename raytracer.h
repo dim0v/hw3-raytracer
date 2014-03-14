@@ -13,10 +13,7 @@ class Intersection;
 class Camera;
 class Scene;
 
-QImage raytrace(Camera &cam, Scene &scene, int sx, int sy, int fx, int fy, QImage &res, int *progress);
-glm::vec3 findColor(Intersection hit, Scene scene, int depth);
-
-class rayTracer : public QThread
+class RayTracer : public QThread
 {
     std::pair<int, int> tl, br;
     QImage res;
@@ -24,10 +21,12 @@ class rayTracer : public QThread
     Scene* scene;
     int progress;
 public:
-    rayTracer(int sx, int fx, int sy, int fy, Camera *_cam, Scene *_scene);
+    RayTracer(int sx, int fx, int sy, int fy, Camera *_cam, Scene *_scene);
     const QImage& getImg(){return res;}
     int getProgress(){return progress;}
 protected:
+    QImage &raytrace();
+    glm::vec3 findColor(const Intersection& hit, int depth);
     void run();
 };
 

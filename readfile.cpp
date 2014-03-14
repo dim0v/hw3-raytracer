@@ -31,7 +31,8 @@
 #include <GL/glut.h>
 #include "ray.h"
 #include "Transform.h" 
-#include "object.h"
+
+#include "visibleobject.h"
 #include "sphere.h"
 #include "triangle.h"
 #include "camera.h"
@@ -119,7 +120,7 @@ pair<Camera *, Scene *> readfile(const char* filename)
 {
     Camera* cam = new Camera;
     Scene* scn = new Scene;
-    Object::Material cur_mat;
+    VisibleObject::Material cur_mat;
     string str, cmd; 
     ifstream in;
     vector<vec3> vert;
@@ -172,7 +173,7 @@ pair<Camera *, Scene *> readfile(const char* filename)
                     validinput = readvals(s,4,values);
                     if(!validinput) {cerr << "Something has gone wrong. Skipping command \"" << cmd << "\"" << endl; continue;}
                     scn->objects.push_back(new Sphere(vec3(values[0], values[1], values[2]), values[3]));
-                    scn->objects.back()->setMat(cur_mat);
+                    dynamic_cast<VisibleObject *>(scn->objects.back())->setMat(cur_mat);
                     scn->objects.back()->setTransform(transfstack.top());
                 }
 
@@ -194,7 +195,7 @@ pair<Camera *, Scene *> readfile(const char* filename)
                     validinput = readvals(s,3,values);
                     if(!validinput) {cerr << "Something has gone wrong. Skipping command \"" << cmd << "\"" << endl; continue;}
                     scn->objects.push_back(new Triangle(vert[values[0]], vert[values[1]], vert[values[2]]));
-                    scn->objects.back()->setMat(cur_mat);
+                    dynamic_cast<VisibleObject *>(scn->objects.back())->setMat(cur_mat);
                     scn->objects.back()->setTransform(transfstack.top());
                 }
 
@@ -204,7 +205,7 @@ pair<Camera *, Scene *> readfile(const char* filename)
                     scn->objects.push_back(new Triangle(vertnorm[values[0]].first, vertnorm[values[1]].first,
                                                         vertnorm[values[2]].first, vertnorm[values[0]].second,
                                                         vertnorm[values[1]].second, vertnorm[values[2]].second));
-                    scn->objects.back()->setMat(cur_mat);
+                    dynamic_cast<VisibleObject *>(scn->objects.back())->setMat(cur_mat);
                     scn->objects.back()->setTransform(transfstack.top());
                 }
 

@@ -24,13 +24,13 @@ int main(int argc, char *argv[])
 
     int nThreads = argc > 2 ? atoi(argv[2]) : QThread::idealThreadCount();
 
-    QVector<rayTracer *> threads;
+    QVector<RayTracer *> threads;
     threads.resize(nThreads);
 
     int thread_subRenderHeight = s.first->getHeight() / nThreads;
 
     for(int i = 0; i < nThreads; ++i)
-        threads[i] = new rayTracer(0,                          s.first->getWidth(),
+        threads[i] = new RayTracer(0,                          s.first->getWidth(),
                                    i * thread_subRenderHeight, (i + 1) * thread_subRenderHeight,
                                    s.first, s.second);
     for(int i = 0; i < nThreads; ++i)

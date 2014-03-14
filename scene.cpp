@@ -11,11 +11,11 @@ Scene::Scene():
 {
 }
 
-Intersection intersect(Ray &ray, const Scene& scene, const Object* obj)
+Intersection intersect(Ray &ray, const Scene* scene, const Object* obj)
 {
     Intersection res;
-    vector<Object*> vObj = scene.getObjectsList();
-    for(vector<Object*>::iterator i = vObj.begin(), j = vObj.end(); i!= j; ++i)
+    const vector<Object*>& vObj = scene->getObjectsList();
+    for(vector<Object*>::const_iterator i = vObj.begin(), j = vObj.end(); i!= j; ++i)
     {
         Intersection tmp = (*i)->intersect(ray);
         if(tmp.getObject() && tmp.getObject() != obj && tmp.getRayPos() < res.getRayPos()) res = tmp;

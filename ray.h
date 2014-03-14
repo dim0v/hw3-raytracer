@@ -11,7 +11,7 @@ class Ray
     glm::vec3 direction;
 public:
     Ray(glm::vec3 _start, glm::vec3 _dir);
-    static Ray rayThruPixel(Camera cam, int x, int y);
+    static Ray rayThruPixel(const Camera *cam, int x, int y);
 
     void applyTransform(const glm::mat4 &transform);
     glm::vec3 getStart() const {return start;}

@@ -2,12 +2,12 @@
 #define TRIANGLE_H
 
 #include <glm/glm.hpp>
-#include "object.h"
+#include "visibleobject.h"
 
 class Object;
 class Intersection;
 
-class Triangle : public Object
+class Triangle : public VisibleObject
 {
     glm::vec3 A, B, C;
     glm::vec3 nA, nB, nC;

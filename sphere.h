@@ -1,10 +1,10 @@
 #ifndef SPHERE_H
 #define SPHERE_H
 
-#include <object.h>
 #include <glm/glm.hpp>
+#include "visibleobject.h"
 
-class Sphere : public Object
+class Sphere : public VisibleObject
 {
     glm::vec3 center;
     float radius;

@@ -32,6 +32,6 @@ public:
     friend std::pair<Camera *, Scene *> readfile(const char* filename);
 };
 
-Intersection intersect(Ray& ray, const Scene& scene, const Object *obj);
+Intersection intersect(Ray& ray, const Scene *scene, const Object *obj);
 
 #endif // SCENE_H
