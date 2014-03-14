@@ -35,8 +35,6 @@ QImage raytrace(Camera &cam, Scene &scene, int sx, int sy, int fx, int fy, QImag
     {
         for(int j = sy; j < fy; ++j)
         {
-            if(i == 100 && j == 0)
-                cerr << "lol" << endl;
             Ray ray = Ray::rayThruPixel(cam, i, j);
             Intersection hit = intersect(ray, scene, NULL);
             if(!hit.getObject()) res.setPixel(i - sx, j - sy, 0);
@@ -61,21 +59,23 @@ vec3 findColor(Intersection hit, Scene scene, int depth)
     vec3 normal = hit.getNormal();
     for(int i = 0, ___i = scene.getLightsList().size(); i != ___i; ++i)
     {
-        //check is point in shadow
-        vec3 dir = (scene.getLightsList()[i]->type == Light::point ? normalize(scene.getLightsList()[i]->pos - P) :
-                                                                     normalize(scene.getLightsList()[i]->pos));
+        vec3 rpos, rdirn;
+        if(scene.getLightsList()[i]->type == Light::point)
+            rpos = scene.getLightsList()[i]->pos, rdirn = normalize(P - scene.getLightsList()[i]->pos);
+        else if(scene.getLightsList()[i]->type == Light::directional)
+            rpos = P, rdirn = normalize(scene.getLightsList()[i]->pos);
+
+        Ray lRay(rpos, rdirn);
+        Intersection lightHit = intersect(lRay, scene, NULL);
+
         bool shadowed = false;
-        for(int j = 0, jend = scene.getObjectsList().size(); j < jend && !shadowed; ++j)
-        {
-            Ray r(P, dir);
-            Intersection t = scene.getObjectsList()[j]->intersect(r);
-            vec3 rayP = t.getRay().trace(t.getRayPos());
-            shadowed = t.getObject() &&
-                    t.getObject() != hit.getObject() &&
-                    length(rayP - P) > eps &&
-                    (scene.getLightsList()[i]->type == Light::directional || length(rayP - P) < length(scene.getLightsList()[i]->pos - P));
-        }
-        if(shadowed)continue;
+
+        if(scene.getLightsList()[i]->type == Light::point)
+            shadowed = lightHit.getObject() != hit.getObject();
+        else if(scene.getLightsList()[i]->type == Light::directional)
+            shadowed = bool(lightHit.getObject());
+
+        if(shadowed) continue;
 
         float d = length(scene.getLightsList()[i]->pos - P);
         if(scene.getLightsList()[i]->type == Light::point)

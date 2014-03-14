@@ -7,7 +7,7 @@ using namespace std;
 using namespace glm;
 
 Scene::Scene():
-    attenuation(vec3(1, 0, 0)), depth(5)
+    depth(5), attenuation(vec3(1, 0, 0))
 {
 }
 

@@ -14,6 +14,7 @@ protected:
 public:
     struct Material
     {
+        Material():shininess(10){}
         glm::vec3 specular;
         glm::vec3 emission;
         glm::vec3 diffuse;

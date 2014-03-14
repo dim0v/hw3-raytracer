@@ -23,7 +23,7 @@ Intersection Triangle::intersect(const Ray &ray)
     Ray _ray(vec3(newpos)/newpos.w, vec3(newdir));
     vec3 normal = normalize(cross(C - A, B - A));
     float t = (glm::dot(A, normal) - glm::dot(_ray.getStart(), normal))/glm::dot(_ray.getDirection(), normal);
-    if(t < 0)return Intersection();
+    if(t < 0 || fabs(glm::dot(_ray.getDirection(), normal)) < eps)return Intersection();
     glm::vec3 P = _ray.trace(t);
     float Sabc = glm::length(glm::cross(C - A, B - A));
     float Spbc = glm::length(glm::cross(C - P, B - P)), Sapc = glm::length(glm::cross(A - P, C - P)), Sabp = glm::length(glm::cross(B - P, A - P));
@@ -39,5 +39,6 @@ Intersection Triangle::intersect(const Ray &ray)
         return Intersection();
     }
     normal = alpha * nA + beta * nB + gamma * nC;
+    if(length(normal) == 0) return Intersection();
     return Intersection(normalize(vec3(invTrans*vec4(normal, 0))), ray, t, this);
 }
