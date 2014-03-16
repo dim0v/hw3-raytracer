@@ -2,6 +2,7 @@
 #define VISIBLEOBJECT_H
 
 #include <glm/glm.hpp>
+#include "boundingbox.h"
 #include "object.h"
 
 class Intersection;
@@ -22,6 +23,8 @@ public:
     VisibleObject();
     const Material getMat() const {return mat;}
     void setMat(Material _mat) {mat = _mat;}
+
+    virtual BoundingBox getBoundingBox() const = 0;
 protected:
     Material mat;
 };

@@ -4,9 +4,9 @@
 #include <glm/glm.hpp>
 #include <limits>
 #include "ray.h"
-#include "visibleobject.h"
 
 class Ray;
+class VisibleObject;
 
 class Intersection
 {

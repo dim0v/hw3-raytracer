@@ -5,11 +5,11 @@
 #-------------------------------------------------
 
 QT       += core\
-            gui
+            gui\
+            widgets
 
 TARGET = hw3-raytracer
-CONFIG   += console
-CONFIG   -= app_bundle
+CONFIG   = qt
 
 TEMPLATE = app
 
@@ -24,8 +24,11 @@ SOURCES += main.cpp \
     light.cpp \
     sphere.cpp \
     triangle.cpp \
+    visibleobject.cpp \
+    boundingbox.cpp \
+    raytracingworker.cpp \
     raytracer.cpp \
-    visibleobject.cpp
+    progressform.cpp
 
 HEADERS += \
     Transform.h \
@@ -38,7 +41,13 @@ HEADERS += \
     object.h \
     sphere.h \
     triangle.h \
+    visibleobject.h \
+    boundingbox.h \
+    raytracingworker.h \
     raytracer.h \
-    visibleobject.h
+    progressform.h
 
 CONFIG += c++11
+
+FORMS += \
+    progressform.ui

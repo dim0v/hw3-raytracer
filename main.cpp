@@ -1,65 +1,57 @@
-#include <iostream>
-#include <string>
-#include <QImage>
-#include <utility>
-#include <cmath>
+#include <QtCore>
+#include <QApplication>
+#include <QCommandLineOption>
+#include <QCommandLineParser>
 
-#include <chrono>
-#include <thread>
-
-#include "readfile.h"
+#include "progressform.h"
 #include "raytracer.h"
-#include "camera.h"
-#include "scene.h"
 using namespace std;
 
 int main(int argc, char *argv[])
 {
-    if(argc < 2)
-    {
-        cout << "Usage :" << endl << argv[0] << " <sceneFile.txt> [<number of threads>]" << endl;
-        return 0;
+    QApplication app(argc, argv);
+
+    QCommandLineParser parser;
+    parser.setApplicationDescription("Simple multi-thread raytracer with octrees optimizations support.");
+    parser.addHelpOption();
+
+    parser.addPositionalArgument("filename", "File with scene description");
+
+    QCommandLineOption threadsOption(QStringList() << "t" << "threads",
+                                     "Number of threads to use (default is number of CPU cores. Sometimes greater number gives better performance).",
+                                     "threads", "0");
+    parser.addOption(threadsOption);
+
+    QCommandLineOption childrenOption(QStringList() << "c" << "children",
+                                      "Minimal number of children to prevent octree node from branching further (default is 8).",
+                                      "children", "8");
+    parser.addOption(childrenOption);
+
+    QCommandLineOption depthOption(QStringList() << "d" << "depth",
+                                   "Maximal depth of octree (default is 8. Should be adapted for each separate case).",
+                                   "depth", "8");
+    parser.addOption(depthOption);
+
+    parser.process(app);
+    const QStringList args = parser.positionalArguments();
+    if (args.size() != 1) {
+        fprintf(stderr, "%s\n", "Error: Must specify one filename argument.");
+        parser.showHelp(1);
+        return 1;
     }
-    pair<Camera*, Scene*> s = readfile(argv[1]);
 
-    int nThreads = argc > 2 ? atoi(argv[2]) : QThread::idealThreadCount();
+    RayTracer *raytracer = new RayTracer(args.at(0).toStdString().c_str(),
+                                         parser.value(threadsOption).toInt(),
+                                         parser.value(childrenOption).toInt(),
+                                         parser.value(depthOption).toInt());
 
-    QVector<RayTracer *> threads;
-    threads.resize(nThreads);
+    ProgressForm *form = new ProgressForm();
 
-    int thread_subRenderHeight = s.first->getHeight() / nThreads;
+    QObject::connect(raytracer, SIGNAL(started()), form, SLOT(show()));
+    QObject::connect(raytracer, SIGNAL(progressUpdated(float)), form, SLOT(updateProgress(float)));
+    QObject::connect(raytracer, SIGNAL(finished()), form, SLOT(finish()));
 
-    for(int i = 0; i < nThreads; ++i)
-        threads[i] = new RayTracer(0,                          s.first->getWidth(),
-                                   i * thread_subRenderHeight, (i + 1) * thread_subRenderHeight,
-                                   s.first, s.second);
-    for(int i = 0; i < nThreads; ++i)
-        threads[i]->start();
+    raytracer->start();
 
-    bool t = false;
-    while(!t)
-    {
-        int progress = 0;
-        for(int i = 0; i < nThreads; ++i)
-            progress += threads[i]->getProgress();
-        cerr << float(progress) / s.first->getWidth() / s.first->getHeight() * 100 << "%" << endl;
-        this_thread::sleep_for( chrono::seconds(3) );
-        t = true;
-        for(int i = 0; i < nThreads && t; ++i)
-            t = threads[i]->isFinished();
-    }
-    for(int i = 0; i < nThreads; ++i)
-        threads[i]->wait();
-
-
-    QImage res(s.first->getWidth(), s.first->getHeight(), QImage::Format_RGB32);
-
-    for(int i = 0; i < s.first->getWidth(); ++i)
-    {
-        for(int j = 0; j < s.first->getHeight(); ++j)
-        {
-            res.setPixel(i, j, threads[j / thread_subRenderHeight]->getImg().pixel(i, j % thread_subRenderHeight));
-        }
-    }
-    res.save(s.second->getFilename().c_str());
+    return app.exec();
 }

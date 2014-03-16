@@ -1,33 +1,41 @@
 #ifndef RAYTRACER_H
 #define RAYTRACER_H
 
-#include <iostream>
-#include <string>
-#include <QThread>
-#include <QImage>
-#include <cmath>
-#include <glm/glm.hpp>
-#include <utility>
+#include <QObject>
+#include <QMutex>
+#include "camera.h"
+#include "scene.h"
+#include "raytracingworker.h"
 
-class Intersection;
-class Camera;
-class Scene;
-
-class RayTracer : public QThread
+class RayTracer : public QObject
 {
-    std::pair<int, int> tl, br;
-    QImage res;
-    Camera* cam;
-    Scene* scene;
+    Q_OBJECT
+
+    Camera *camera;
+    Scene *scene;
+    QVector<RayTracingWorker *> threads;
     int progress;
+    int nThreadsFinished;
+    int nThreads;
+
+    QMutex mutex;
 public:
-    RayTracer(int sx, int fx, int sy, int fy, Camera *_cam, Scene *_scene);
-    const QImage& getImg(){return res;}
-    int getProgress(){return progress;}
+    explicit RayTracer(const char *filename, int numOfThreads, int octreeLeafChildren, int octreeDepth,  QObject *parent = 0);
+    ~RayTracer();
+
 protected:
-    QImage &raytrace();
-    glm::vec3 findColor(const Intersection& hit, int depth);
-    void run();
+    QImage getImage();
+    void saveImage();
+
+signals:
+    void started();
+    void finished();
+    void progressUpdated(float percent);
+
+public slots:
+    void start();
+    void threadFinished();
+    void updateProgress();
 };
 
 #endif // RAYTRACER_H

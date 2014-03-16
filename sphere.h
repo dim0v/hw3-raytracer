@@ -11,6 +11,8 @@ class Sphere : public VisibleObject
 public:
     Sphere(glm::vec3 _center, float _radius);
     virtual Intersection intersect(const Ray& ray);
+
+    virtual BoundingBox getBoundingBox() const;
 };
 
 #endif // SPHERE_H

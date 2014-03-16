@@ -42,3 +42,24 @@ Intersection Triangle::intersect(const Ray &ray)
     if(length(normal) == 0) return Intersection();
     return Intersection(normalize(vec3(invTrans*vec4(normal, 0))), ray, t, this);
 }
+
+BoundingBox Triangle::getBoundingBox() const
+{
+    vec3 points[3] = {A, B, C};
+    for(int i = 0; i < 3; ++i)
+    {
+        vec4 tmp = vec4(points[i], 1) * transform;
+        points[i] = vec3(tmp) / tmp.w;
+    }
+    vec3 from(points[0]), to(points[0]);
+    for(int i = 1; i < 2; ++i)
+    {
+        from.x = min(from.x, points[i].x);
+        from.y = min(from.y, points[i].y);
+        from.z = min(from.z, points[i].z);
+        to.x = max(to.x, points[i].x);
+        to.y = max(to.y, points[i].y);
+        to.z = max(to.z, points[i].z);
+    }
+    return BoundingBox(from, to);
+}

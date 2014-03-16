@@ -7,6 +7,7 @@
 #include <utility>
 
 class Object;
+class VisibleObject;
 class Light;
 class Ray;
 class Camera;
@@ -30,8 +31,10 @@ public:
     int getDepth() const {return depth;}
     const glm::vec3 getAttenuation() const {return attenuation;}
     friend std::pair<Camera *, Scene *> readfile(const char* filename);
+
+    void buildOctree(unsigned leaf_child_treshold = 8, unsigned depth_treshold = 13);
 };
 
-Intersection intersect(Ray& ray, const Scene *scene, const Object *obj);
+Intersection intersect(Ray& ray, const Scene *scene, const VisibleObject *obj);
 
 #endif // SCENE_H
