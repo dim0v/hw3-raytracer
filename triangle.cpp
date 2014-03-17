@@ -15,14 +15,17 @@ Triangle::Triangle(glm::vec3 _A, glm::vec3 _B, glm::vec3 _C, glm::vec3 _nA, glm:
         nA = _nA, nB = _nB, nC = _nC;
 }
 
-Intersection Triangle::intersect(const Ray &ray)
+Intersection Triangle::intersect(const Ray &ray, const Object *objToPass)
 {
+    if(this == objToPass)
+        return Intersection();
+
     mat4 invTrans = inverseTransform;
-    vec4 newpos = vec4(ray.getStart(), 1)*invTrans;
+    vec4 newpos = vec4(ray.getOrigin(), 1)*invTrans;
     vec4 newdir = vec4(ray.getDirection(), 0)*invTrans;
     Ray _ray(vec3(newpos)/newpos.w, vec3(newdir));
     vec3 normal = normalize(cross(C - A, B - A));
-    float t = (glm::dot(A, normal) - glm::dot(_ray.getStart(), normal))/glm::dot(_ray.getDirection(), normal);
+    float t = (glm::dot(A, normal) - glm::dot(_ray.getOrigin(), normal))/glm::dot(_ray.getDirection(), normal);
     if(t < 0 || fabs(glm::dot(_ray.getDirection(), normal)) < eps)return Intersection();
     glm::vec3 P = _ray.trace(t);
     float Sabc = glm::length(glm::cross(C - A, B - A));

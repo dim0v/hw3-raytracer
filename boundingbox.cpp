@@ -37,49 +37,34 @@ BoundingBox::BoundingBox(const std::vector<VisibleObject *> &objects, unsigned l
     buildOctree(leaf_children_treshold, depth_treshold);
 }
 
-Intersection BoundingBox::intersect(const Ray &ray)
+bool BoundingBox::intersectedByRay(const Ray &ray)
+{
+    float t0 = 0, t1 = std::numeric_limits<float>::infinity();
+    for (int i = 0; i < 3; ++i) {
+        // Update interval for _i_th bounding box slab
+        float invRayDir = 1.f / ray.getDirection()[i];
+        float tNear = (from[i] - ray.getOrigin()[i]) * invRayDir;
+        float tFar = (to[i] - ray.getOrigin()[i]) * invRayDir;
+        // Update parametric interval from slab intersection $t$s
+        if (tNear > tFar) std::swap(tNear, tFar);
+        t0 = tNear > t0 ? tNear : t0;
+        t1 = tFar < t1 ? tFar : t1;
+        if (t0 > t1) return false;
+    }
+    return true;
+}
+
+Intersection BoundingBox::intersect(const Ray &ray, const Object *objToPass)
 {
     //Intersect ray with the box itself
-    float tmin, tmax, tymin, tymax, tzmin, tzmax;
-    if (ray.getDirection().x >= 0) {
-        tmin = (from.x - ray.getStart().x) / ray.getDirection().x;
-        tmax = (to.x - ray.getStart().x) / ray.getDirection().x;
-    }
-    else {
-        tmin = (to.x - ray.getStart().x) / ray.getDirection().x;
-        tmax = (from.x - ray.getStart().x) / ray.getDirection().x;
-    }
-    if (ray.getDirection().y >= 0) {
-        tymin = (from.y - ray.getStart().y) / ray.getDirection().y;
-        tymax = (to.y - ray.getStart().y) / ray.getDirection().y;
-    }
-    else {
-        tymin = (to.y - ray.getStart().y) / ray.getDirection().y;
-        tymax = (from.y - ray.getStart().y) / ray.getDirection().y;
-    }
-    if ( (tmin > tymax) || (tymin > tmax) )
-        return Intersection();
-
-    if (tymin > tmin)
-        tmin = tymin;
-    if (tymax < tmax)
-        tmax = tymax;
-    if (ray.getDirection().z >= 0) {
-        tzmin = (from.z - ray.getStart().z) / ray.getDirection().z;
-        tzmax = (to.z - ray.getStart().z) / ray.getDirection().z;
-    }
-    else {
-        tzmin = (to.z - ray.getStart().z) / ray.getDirection().z;
-        tzmax = (from.z - ray.getStart().z) / ray.getDirection().z;
-    }
-    if ( (tmin > tzmax) || (tzmin > tmax) )
+    if(!intersectedByRay(ray))
         return Intersection();
 
     //ray intersects the box. Check objects inside the box for intersection
     Intersection res;
     for(auto obj : objects)
     {
-        Intersection tmp = obj->intersect(ray);
+        Intersection tmp = obj->intersect(ray, objToPass);
         if(tmp.getObject() && tmp.getRayPos() < res.getRayPos()) res = tmp;
     }
     return res;

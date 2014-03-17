@@ -4,15 +4,15 @@
 #include "Transform.h"
 
 Ray::Ray(glm::vec3 _start, glm::vec3 _dir):
-    start(_start), direction(_dir)
+    origin(_start), direction(_dir)
 {
 }
 
 void Ray::applyTransform(const glm::mat4 &transform)
 {
-    vec4 newpos = vec4(start, 1)*transform;
+    vec4 newpos = vec4(origin, 1)*transform;
     vec4 newdir = vec4(direction, 0)*transform;
-    start = vec3(newpos)/newpos.w;
+    origin = vec3(newpos)/newpos.w;
     direction = vec3(newdir);
 }
 

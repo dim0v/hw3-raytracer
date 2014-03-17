@@ -41,8 +41,8 @@ Intersection intersect(Ray &ray, const Scene* scene, const VisibleObject *obj)
     const vector<Object*>& vObj = scene->getObjectsList();
     for(vector<Object*>::const_iterator i = vObj.begin(), j = vObj.end(); i!= j; ++i)
     {
-        Intersection tmp = (*i)->intersect(ray);
-        if(tmp.getObject() && tmp.getObject() != obj && tmp.getRayPos() < res.getRayPos()) res = tmp;
+        Intersection tmp = (*i)->intersect(ray, obj);
+        if(tmp.getObject() && tmp.getRayPos() < res.getRayPos()) res = tmp;
     }
     return res;
 }

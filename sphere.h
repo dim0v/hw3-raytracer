@@ -10,7 +10,7 @@ class Sphere : public VisibleObject
     float radius;
 public:
     Sphere(glm::vec3 _center, float _radius);
-    virtual Intersection intersect(const Ray& ray);
+    virtual Intersection intersect(const Ray& ray, const Object* objToPass = nullptr);
 
     virtual BoundingBox getBoundingBox() const;
 };

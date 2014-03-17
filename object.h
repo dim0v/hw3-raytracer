@@ -15,7 +15,7 @@ public:
     const glm::mat4 getInverseTransform() const {return inverseTransform;}
     void setTransform(glm::mat4 _transform) {transform = _transform; inverseTransform = glm::inverse(transform);}
 
-    virtual Intersection intersect(const Ray& ray) = 0;
+    virtual Intersection intersect(const Ray& ray, const Object* objToPass = nullptr) = 0;
 };
 
 #endif // OBJECT_H

@@ -10,16 +10,19 @@ Sphere::Sphere(vec3 _center, float _radius):
 {
 }
 
-Intersection Sphere::intersect(const Ray &ray)
+Intersection Sphere::intersect(const Ray &ray, const Object *objToPass)
 {
+    if(this == objToPass)
+        return Intersection();
+
     mat4 invTrans = inverseTransform;
-    vec4 newpos = vec4(ray.getStart(), 1)*invTrans;
+    vec4 newpos = vec4(ray.getOrigin(), 1)*invTrans;
     vec4 newdir = vec4(ray.getDirection(), 0)*invTrans;
     Ray _ray(vec3(newpos)/newpos.w, vec3(newdir));
     float a, b, c;
     a = dot(_ray.getDirection(), _ray.getDirection());
-    b = 2 * dot(_ray.getDirection(), _ray.getStart() - center);
-    c = dot(_ray.getStart() - center, _ray.getStart() - center) - radius * radius;
+    b = 2 * dot(_ray.getDirection(), _ray.getOrigin() - center);
+    c = dot(_ray.getOrigin() - center, _ray.getOrigin() - center) - radius * radius;
     float D = b*b - 4*a*c, t;
     if(D < 0) return Intersection();
     t = (- b - std::sqrt(D))/(2*a);
