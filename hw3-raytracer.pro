@@ -9,7 +9,8 @@ QT       += core\
             widgets
 
 TARGET = hw3-raytracer
-CONFIG   = qt
+CONFIG +=   qt\
+            c++11
 
 TEMPLATE = app
 
@@ -46,8 +47,6 @@ HEADERS += \
     raytracingworker.h \
     raytracer.h \
     progressform.h
-
-CONFIG += c++11
 
 FORMS += \
     progressform.ui

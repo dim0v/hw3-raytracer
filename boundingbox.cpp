@@ -7,6 +7,8 @@
 
 using namespace glm;
 
+const float eps = 1e-6;
+
 BoundingBox::BoundingBox(const std::vector<VisibleObject *> &objects, unsigned leaf_children_treshold /*= 8*/, unsigned depth_treshold /*= 16*/)
 {
     if(objects.empty()) return;
@@ -85,15 +87,12 @@ Intersection BoundingBox::intersect(const Ray &ray)
 
 bool BoundingBox::intersects(const BoundingBox &other) const
 {
-    float px, py, pz;
-    px = max(to.x, other.to.x) - min(from.x, other.from.x) - ((to.x - from.x) + (other.to.x - other.from.x));
-    px = -px;
-    py = max(to.y, other.to.y) - min(from.y, other.from.y) - ((to.y - from.y) + (other.to.y - other.from.y));
-    py = -py;
-    pz = max(to.z, other.to.z) - min(from.z, other.from.z) - ((to.z - from.z) + (other.to.z - other.from.z));
-    pz = -pz;
-
-    return px > 0 && py > 0 && pz > 0;
+    for(int i = 0; i < 3; ++i)
+    {
+        if(from[i] - other.to[i] > eps || other.from[i] - to[i] > eps)
+            return false;
+    }
+    return true;
 }
 
 void BoundingBox::buildOctree(unsigned leaf_children_treshold /*= 8*/, unsigned depth_treshold /*= 4*/)
@@ -109,24 +108,30 @@ void BoundingBox::buildOctree(unsigned leaf_children_treshold /*= 8*/, unsigned 
                                 new BoundingBox(vec3(halfway.x, from.y,    halfway.z), vec3(to.x,      halfway.y, to.z     )),
                                 new BoundingBox(vec3(from.x,    halfway.y, halfway.z), vec3(halfway.x, to.y,      to.z     )),
                                 new BoundingBox(vec3(halfway.x, halfway.y, halfway.z), vec3(to.x,      to.y,      to.z     ))};
+    std::vector<Object *> vec;
     for(auto obj : objects)
     {
-        for(int i = 0; i < 8; ++i)
+        try
         {
-            try
+            VisibleObject *vobj = dynamic_cast<VisibleObject *>(obj);
+            BoundingBox box = vobj->getBoundingBox();
+            bool f = false;
+            for(int i = 0; i < 8; ++i)
             {
-                VisibleObject *vobj = dynamic_cast<VisibleObject *>(obj);
-                if(children[i]->intersects(vobj->getBoundingBox()))
-                    children[i]->objects.push_back(vobj);
+                if(children[i]->intersects(box))
+                    children[i]->objects.push_back(vobj), f = true;
             }
-            catch(...)
-            {
-                std::cerr << "Shit happens. Tried to add non-VisibleObject to octree" << std::endl;
-            }
+            if(!f)
+                vec.push_back(vobj);
+        }
+        catch(...)
+        {
+            std::cerr << "Shit happens. Tried to add non-VisibleObject to octree" << std::endl;
         }
     }
     objects.clear();
-    objects.insert(objects.begin(), children, children + 8);
+    objects.insert(objects.begin(), vec.begin(), vec.end());
+    objects.insert(objects.end(), children, children + 8);
     for(int i = 0; i < 8; ++i)
         children[i]->buildOctree(leaf_children_treshold, depth_treshold - 1);
 }

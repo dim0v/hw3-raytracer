@@ -7,8 +7,8 @@ using namespace std;
 
 RayTracer::RayTracer(const char *filename, int numOfThreads, int octreeLeafChildren, int octreeDepth,  QObject *parent) :
     QObject(parent),
-    nThreads(numOfThreads),
-    progress(0)
+    progress(0),
+    nThreads(numOfThreads)
 {
     qDebug() << "scene filename: " << filename;
     qDebug() << "threads: " << numOfThreads;

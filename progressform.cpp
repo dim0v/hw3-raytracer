@@ -6,8 +6,8 @@ using namespace std;
 
 ProgressForm::ProgressForm(QWidget *parent) :
     QWidget(parent),
-    ui(new Ui::ProgressForm),
-    timer(new QTimer(this))
+    timer(new QTimer(this)),
+    ui(new Ui::ProgressForm)
 {
     ui->setupUi(this);
     time.start();
@@ -36,9 +36,16 @@ void ProgressForm::updateTimeLabels()
     QTime t(0, 0);
     t = t.addMSecs(time.elapsed());
     ui->timeLbl->setText(t.toString());
-    t = QTime(0, 0);
-    t = t.addMSecs(time.elapsed() * 100 / ui->progressBar->value() * (1.0 - ui->progressBar->value() / 100.0));
-    ui->etaLbl->setText(t.toString());
+    if(ui->progressBar->value())
+    {
+        t = QTime(0, 0);
+        t = t.addMSecs(time.elapsed() * 100 / ui->progressBar->value() * (1.0 - ui->progressBar->value() / 100.0));
+        ui->etaLbl->setText(t.toString());
+    }
+    else
+    {
+        ui->etaLbl->setText("--:--:--");
+    }
 }
 
 void ProgressForm::finish()

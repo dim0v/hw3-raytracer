@@ -52,7 +52,7 @@ BoundingBox Triangle::getBoundingBox() const
         points[i] = vec3(tmp) / tmp.w;
     }
     vec3 from(points[0]), to(points[0]);
-    for(int i = 1; i < 2; ++i)
+    for(int i = 1; i < 3; ++i)
     {
         from.x = min(from.x, points[i].x);
         from.y = min(from.y, points[i].y);
