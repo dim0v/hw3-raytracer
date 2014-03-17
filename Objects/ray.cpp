@@ -16,9 +16,13 @@ void Ray::applyTransform(const glm::mat4 &transform)
     direction = vec3(newdir);
 }
 
-Ray Ray::rayThruPixel(const Camera *cam, int X, int Y)
+Ray Ray::rayThruPixel(const Camera *cam, int X, int Y, float angle)
 {
-    float x = X+.5, y = Y+.5;
+    float margin = 0.8;
+    float addX = margin * cos(angle), addY = margin * sin(angle);
+    addX = (addX + 1) / 2;
+    addY = (addY + 1) / 2;
+    float x = X+addX, y = Y+addY;
     Ray res(cam->getEye(), glm::vec3());
     glm::vec3 a = cam->getCenter() - cam->getEye();
     glm::vec3 u, v, w;

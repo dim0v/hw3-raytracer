@@ -19,9 +19,14 @@ using namespace std;
 
 const float eps = 1e-6;
 
-RayTracingWorker::RayTracingWorker(int sx, int fx, int sy, int fy, Camera *_cam, Scene *_scene):
-    tl(std::make_pair(sx, sy)), br(std::make_pair(fx, fy)), res(fx-sx, fy-sy, QImage::Format_RGB32),
-    cam(_cam), scene(_scene), progress(0)
+RayTracingWorker::RayTracingWorker(int sx, int fx, int sy, int fy, Camera *_cam, Scene *_scene, int _MSAASamples):
+    tl(std::make_pair(sx, sy)),
+    br(std::make_pair(fx, fy)),
+    res(fx-sx, fy-sy, QImage::Format_RGB32),
+    cam(_cam),
+    scene(_scene),
+    progress(0),
+    MSAASamples(std::max(_MSAASamples, 1))
 {}
 
 void RayTracingWorker::run()
@@ -36,14 +41,17 @@ QImage &RayTracingWorker::raytrace()
     {
         for(int j = sy; j < fy; ++j)
         {
-            Ray ray = Ray::rayThruPixel(cam, i, j);
-            Intersection hit = intersect(ray, scene, NULL);
-            if(!hit.getObject()) res.setPixel(i - sx, j - sy, 0);
-            else
+            vec3 color;
+            float angle = 0;
+            for(int k = 0; k < MSAASamples; ++k, angle += 2 * M_PI / MSAASamples)
             {
-                vec3 color = findColor(hit, scene->getDepth());
-                res.setPixel(i - sx, j - sy, (int(color.r * 255)<<16) + (int(color.g * 255)<<8) + int(color.b * 255));
+                Ray ray = Ray::rayThruPixel(cam, i, j, angle);
+                Intersection hit = intersect(ray, scene, NULL);
+                if(hit.getObject())
+                    color += findColor(hit, scene->getDepth());
             }
+            color /= MSAASamples;
+            res.setPixel(i - sx, j - sy, (int(color.r * 255)<<16) + (int(color.g * 255)<<8) + int(color.b * 255));
             progress++;
             emit pixelProcessed();
         }
@@ -91,8 +99,8 @@ vec3 RayTracingWorker::findColor(const Intersection &hit, int depth)
             attenuation[i] = scene->getLightsList()[i]->color;
 
         vec3 direction = scene->getLightsList()[i]->type == Light::point ?      //diffuse
-                   normalize(scene->getLightsList()[i]->pos - P) :              //diffuse
-                   normalize(scene->getLightsList()[i]->pos);                   //diffuse
+                                                                                normalize(scene->getLightsList()[i]->pos - P) :              //diffuse
+                                                                                normalize(scene->getLightsList()[i]->pos);                   //diffuse
         color += attenuation[i] * hit.getObject()->getMat().diffuse *           //diffuse
                 std::max(0.f, dot(direction, normal));                          //diffuse
 

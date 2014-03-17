@@ -17,10 +17,11 @@ class RayTracer : public QObject
     int progress;
     int nThreadsFinished;
     int nThreads;
+    int MSAASamples;
 
     QMutex mutex;
 public:
-    explicit RayTracer(const char *filename, int numOfThreads, int octreeLeafChildren, int octreeDepth,  QObject *parent = 0);
+    explicit RayTracer(const char *filename, int _MSAASamples, int numOfThreads, int octreeLeafChildren, int octreeDepth,  QObject *parent = 0);
     ~RayTracer();
 
 protected:

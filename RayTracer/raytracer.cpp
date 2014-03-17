@@ -5,15 +5,17 @@
 
 using namespace std;
 
-RayTracer::RayTracer(const char *filename, int numOfThreads, int octreeLeafChildren, int octreeDepth,  QObject *parent) :
+RayTracer::RayTracer(const char *filename, int _MSAASamples, int numOfThreads, int octreeLeafChildren, int octreeDepth,  QObject *parent) :
     QObject(parent),
     progress(0),
-    nThreads(numOfThreads)
+    nThreads(numOfThreads),
+    MSAASamples(_MSAASamples)
 {
     qDebug() << "scene filename: " << filename;
     qDebug() << "threads: " << numOfThreads;
     qDebug() << "children: " << octreeLeafChildren;
     qDebug() << "depth: " << octreeDepth;
+    qDebug() << "msaa: " << MSAASamples;
 
     pair<Camera*, Scene*> s = readfile(filename);
     camera = s.first;
@@ -32,7 +34,8 @@ RayTracer::RayTracer(const char *filename, int numOfThreads, int octreeLeafChild
                                           i * thread_subRenderHeight + (i < k),
                                           min((i + 1) * thread_subRenderHeight + (i < k), camera->getHeight()),
                                           camera,
-                                          scene);
+                                          scene,
+                                          MSAASamples);
 
     for(auto thread : threads)
     {

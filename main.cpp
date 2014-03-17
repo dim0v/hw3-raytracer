@@ -32,6 +32,11 @@ int main(int argc, char *argv[])
                                    "depth", "8");
     parser.addOption(depthOption);
 
+    QCommandLineOption msaaOption(QStringList() << "MSAA",
+                                  "Number of samples for MSAA (default is 1).",
+                                  "MSAA", "1");
+    parser.addOption(msaaOption);
+
     parser.process(app);
     const QStringList args = parser.positionalArguments();
     if (args.size() != 1) {
@@ -41,6 +46,7 @@ int main(int argc, char *argv[])
     }
 
     RayTracer *raytracer = new RayTracer(args.at(0).toStdString().c_str(),
+                                         parser.value(msaaOption).toInt(),
                                          parser.value(threadsOption).toInt(),
                                          parser.value(childrenOption).toInt(),
                                          parser.value(depthOption).toInt());

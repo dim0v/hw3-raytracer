@@ -22,8 +22,9 @@ class RayTracingWorker : public QThread
     Camera* cam;
     Scene* scene;
     int progress;
+    int MSAASamples;
 public:
-    RayTracingWorker(int sx, int fx, int sy, int fy, Camera *_cam, Scene *_scene);
+    RayTracingWorker(int sx, int fx, int sy, int fy, Camera *_cam, Scene *_scene, int _MSAASamples);
     const QImage& getImg(){return res;}
     int getProgress(){return progress;}
 protected:
