@@ -17,6 +17,7 @@
 using namespace glm;
 using namespace std;
 
+const float M_PI = glm::acos(-1.0);
 const float eps = 1e-6;
 
 RayTracingWorker::RayTracingWorker(int sx, int fx, int sy, int fy, Camera *_cam, Scene *_scene, int _MSAASamples):

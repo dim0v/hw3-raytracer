@@ -28,7 +28,6 @@
 #include <sstream>
 #include <deque>
 #include <stack>
-#include <GL/glut.h>
 #include "ray.h"
 #include "Transform.h" 
 
@@ -58,36 +57,36 @@ float tx, ty ; // the translation in x and y
 
 // Lighting parameter array, similar to that in the fragment shader
 const int numLights = 10 ;
-GLfloat lightposn [4*numLights] ; // Light Positions
-GLfloat lightcolor[4*numLights] ; // Light Colors
-GLfloat lightransf[4*numLights] ; // Lights transformed by modelview
+float lightposn [4*numLights] ; // Light Positions
+float lightcolor[4*numLights] ; // Light Colors
+float lightransf[4*numLights] ; // Lights transformed by modelview
 int numused ;                     // How many lights are used
 
 // Materials (read from file)
 // With multiple objects, these are colors for each.
-GLfloat ambient[4] ;
-GLfloat diffuse[4] ;
-GLfloat specular[4] ;
-GLfloat emission[4] ;
-GLfloat shininess ;
+float ambient[4] ;
+float diffuse[4] ;
+float specular[4] ;
+float emission[4] ;
+float shininess ;
 
 // For multiple objects, read from a file.
 const int maxobjects = 10 ;
 int numobjects ;
 struct object {
   shape type ;
-  GLfloat size ;
-  GLfloat ambient[4] ;
-  GLfloat diffuse[4] ;
-  GLfloat specular[4] ;
-  GLfloat emission[4] ;
-  GLfloat shininess ;
+  float size ;
+  float ambient[4] ;
+  float diffuse[4] ;
+  float specular[4] ;
+  float emission[4] ;
+  float shininess ;
   mat4 transform ;
 } objects[maxobjects] ;
 
 
 // The function below applies the appropriate transform to a 4-vector
-void matransform(stack<mat4> &transfstack, GLfloat* values)
+void matransform(stack<mat4> &transfstack, float *values)
 {
     mat4 transform = transfstack.top();
     vec4 valvec = vec4(values[0],values[1],values[2],values[3]);
@@ -104,7 +103,7 @@ void rightmultiply(const mat4 & M, stack<mat4> &transfstack)
 
 // Function to read the input data values
 // Use is optional, but should be very helpful in parsing.  
-bool readvals(stringstream &s, const int numvals, GLfloat* values)
+bool readvals(stringstream &s, const int numvals, float *values)
 {
     for (int i = 0; i < numvals; i++) {
         s >> values[i]; 
@@ -140,7 +139,7 @@ pair<Camera *, Scene *> readfile(const char* filename)
 
                 stringstream s(str);
                 s >> cmd;
-                GLfloat values[10]; // Position and color for light, colors for others
+                float values[10]; // Position and color for light, colors for others
                                     // Up to 10 params for cameras.  
                 bool validinput; // Validity of input 
 

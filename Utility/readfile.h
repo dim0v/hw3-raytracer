@@ -5,7 +5,6 @@
 #include <deque>
 #include <stack>
 #include <utility>
-#include <GL/glut.h>
 #include <glm/glm.hpp>
 
 using namespace std;
@@ -14,7 +13,7 @@ using namespace std;
 class Camera;
 class Scene;
 
-void matransform (stack<glm::mat4> &transfstack, GLfloat * values) ;
+void matransform (stack<glm::mat4> &transfstack, float * values) ;
 void rightmultiply (const glm::mat4 & M, stack<glm::mat4> &transfstack) ;
-bool readvals (stringstream &s, const int numvals, GLfloat * values) ;
+bool readvals (stringstream &s, const int numvals, float * values) ;
 pair<Camera*, Scene*> readfile (const char * filename) ;

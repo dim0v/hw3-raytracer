@@ -12,7 +12,9 @@ mat3 Transform::rotate(const float degrees, const vec3& axis)
     // YOUR CODE FOR HW2 HERE
       float radians = degrees * pi / 180;
       vec3 _axis = glm::normalize(axis);
-      mat3 res = mat3(cos(radians)) + (1 - cos(radians))*mat3(_axis[0]*_axis, _axis[1]*_axis, _axis[2]*_axis) + sin(radians)*mat3(0, -_axis[2], _axis[1], _axis[2], 0, -_axis[0], -_axis[1], _axis[0], 0);
+      mat3 res = mat3(glm::cos(radians)) +
+              (1 - glm::cos(radians))*mat3(_axis[0]*_axis, _axis[1]*_axis, _axis[2]*_axis) +
+              glm::sin(radians)*mat3(0, -_axis[2], _axis[1], _axis[2], 0, -_axis[0], -_axis[1], _axis[0], 0);
     // Please implement this.  Likely the same as in HW 1.  
       return res;
 }
