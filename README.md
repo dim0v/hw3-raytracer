@@ -1,4 +1,4 @@
-hw3-raytracer
+Raytracer
 =============
 
-hw3-raytracer
+Simple raytracer written in C++
